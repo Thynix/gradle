@@ -19,12 +19,13 @@ package org.gradle.composite.internal;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.artifacts.component.BuildIdentifier;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.TaskAction;
+import org.gradle.api.tasks.Internal;
+import org.gradle.api.tasks.TaskWaiter;
 import org.gradle.initialization.includedbuild.IncludedBuildTaskGraph;
 
 import javax.inject.Inject;
 
-public class CompositeBuildTaskDelegate extends DefaultTask {
+public class CompositeBuildTaskDelegate extends DefaultTask implements TaskWaiter {
     private final IncludedBuildTaskGraph taskGraph;
     private BuildIdentifier build;
     private String taskPath;
@@ -52,8 +53,9 @@ public class CompositeBuildTaskDelegate extends DefaultTask {
         this.taskPath = taskPath;
     }
 
-    @TaskAction
-    public void executeTasksInOtherBuild() {
-        taskGraph.awaitCompletion(build, taskPath);
+    @Internal
+    @Override
+    public boolean isComplete() {
+        return taskGraph.isComplete(build, taskPath);
     }
 }

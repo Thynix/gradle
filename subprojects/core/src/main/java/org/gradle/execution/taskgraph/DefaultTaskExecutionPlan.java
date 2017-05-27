@@ -40,6 +40,7 @@ import org.gradle.api.internal.tasks.TaskContainerInternal;
 import org.gradle.api.internal.tasks.TaskDestroyablesInternal;
 import org.gradle.api.specs.Spec;
 import org.gradle.api.specs.Specs;
+import org.gradle.api.tasks.TaskWaiter;
 import org.gradle.execution.MultipleBuildFailures;
 import org.gradle.execution.TaskFailureHandler;
 import org.gradle.initialization.BuildCancellationToken;
@@ -161,7 +162,10 @@ public class DefaultTaskExecutionPlan implements TaskExecutionPlan {
                 for (Task dependsOnTask : dependsOnTasks) {
                     TaskInfo targetNode = graph.addNode(dependsOnTask);
                     node.addDependencySuccessor(targetNode);
-                    if (!visiting.contains(targetNode)) {
+
+                    if (targetNode.getTask() instanceof TaskWaiter) {
+                        targetNode.doNotRequire();
+                    } else if (!visiting.contains(targetNode)) {
                         queue.add(0, targetNode);
                     }
                 }
@@ -182,7 +186,9 @@ public class DefaultTaskExecutionPlan implements TaskExecutionPlan {
                 }
                 if (node.isRequired()) {
                     for (TaskInfo successor : node.getDependencySuccessors()) {
-                        if (filter.isSatisfiedBy(successor.getTask())) {
+                        if (successor.getTask() instanceof TaskWaiter) {
+                            successor.doNotRequire();
+                        } else if (filter.isSatisfiedBy(successor.getTask())) {
                             successor.require();
                         }
                     }

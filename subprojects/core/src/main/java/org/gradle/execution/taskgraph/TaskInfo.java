@@ -17,6 +17,7 @@
 package org.gradle.execution.taskgraph;
 
 import org.gradle.api.internal.TaskInternal;
+import org.gradle.api.tasks.TaskWaiter;
 
 import java.util.TreeSet;
 
@@ -136,7 +137,11 @@ public class TaskInfo implements Comparable<TaskInfo> {
         }
 
         for (TaskInfo dependency : dependencySuccessors) {
-            if (!dependency.isComplete()) {
+            if (dependency.getTask() instanceof TaskWaiter) {
+                if (!((TaskWaiter) dependency.getTask()).isComplete()) {
+                    return false;
+                }
+            } else if (!dependency.isComplete()) {
                 return false;
             }
         }
