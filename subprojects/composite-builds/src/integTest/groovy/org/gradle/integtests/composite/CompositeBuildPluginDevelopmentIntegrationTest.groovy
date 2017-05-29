@@ -18,7 +18,6 @@ package org.gradle.integtests.composite
 
 import org.gradle.integtests.fixtures.build.BuildTestFile
 import org.gradle.util.Matchers
-
 /**
  * Tests for plugin development scenarios within a composite build.
  */
