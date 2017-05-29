@@ -106,6 +106,7 @@ task srcZip(type: Zip) {
             include 'wrapper/'
             include 'gradlew.bat'
             include 'version.txt'
+            include 'gradle.properties'
         }
     }
 }
