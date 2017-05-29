@@ -59,6 +59,13 @@ public class HelpTasksPlugin implements Plugin<ProjectInternal> {
         tasks.addPlaceholderAction(ProjectInternal.HELP_TASK, Help.class, new HelpAction());
         tasks.addPlaceholderAction(ProjectInternal.PROJECTS_TASK, ProjectReportTask.class, new ProjectReportTaskAction(projectName));
         tasks.addPlaceholderAction(ProjectInternal.TASKS_TASK, TaskReportTask.class, new TaskReportTaskAction(projectName, project.getChildProjects().isEmpty()));
+        tasks.addPlaceholderAction("dryRun", DryRunReportTask.class, new Action<DryRunReportTask>() {
+            @Override
+            public void execute(DryRunReportTask task) {
+                task.setGroup(HELP_GROUP);
+                task.setImpliesSubProjects(true);
+            }
+        });
         tasks.addPlaceholderAction(PROPERTIES_TASK, PropertyReportTask.class, new PropertyReportTaskAction(projectName));
         tasks.addPlaceholderAction(DEPENDENCY_INSIGHT_TASK, DependencyInsightReportTask.class, new DependencyInsightReportTaskAction(projectName));
         tasks.addPlaceholderAction(DEPENDENCIES_TASK, DependencyReportTask.class, new DependencyReportTaskAction(projectName));

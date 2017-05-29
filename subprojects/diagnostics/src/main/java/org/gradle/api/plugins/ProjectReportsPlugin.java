@@ -21,6 +21,7 @@ import org.gradle.api.Task;
 import org.gradle.api.internal.plugins.DslObject;
 import org.gradle.api.reporting.dependencies.HtmlDependencyReportTask;
 import org.gradle.api.tasks.diagnostics.DependencyReportTask;
+import org.gradle.api.tasks.diagnostics.DryRunReportTask;
 import org.gradle.api.tasks.diagnostics.PropertyReportTask;
 import org.gradle.api.tasks.diagnostics.TaskReportTask;
 
@@ -32,6 +33,7 @@ import java.util.concurrent.Callable;
  */
 public class ProjectReportsPlugin implements Plugin<Project> {
     public static final String TASK_REPORT = "taskReport";
+    public static final String DRY_RUN_REPORT = "dryRunReport";
     public static final String PROPERTY_REPORT = "propertyReport";
     public static final String DEPENDENCY_REPORT = "dependencyReport";
     public static final String HTML_DEPENDENCY_REPORT = "htmlDependencyReport";
@@ -55,6 +57,9 @@ public class ProjectReportsPlugin implements Plugin<Project> {
                 return convention.getProjects();
             }
         });
+
+        DryRunReportTask dryRunReportTask = project.getTasks().create(DRY_RUN_REPORT, DryRunReportTask.class);
+        dryRunReportTask.setDescription("DRY RUN");
 
         PropertyReportTask propertyReportTask = project.getTasks().create(PROPERTY_REPORT, PropertyReportTask.class);
         propertyReportTask.setDescription("Generates a report about your properties.");

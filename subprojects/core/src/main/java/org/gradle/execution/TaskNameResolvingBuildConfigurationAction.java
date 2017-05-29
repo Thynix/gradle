@@ -15,12 +15,15 @@
  */
 package org.gradle.execution;
 
+import com.google.common.collect.Lists;
 import org.gradle.TaskExecutionRequest;
+import org.gradle.api.Nullable;
 import org.gradle.api.internal.GradleInternal;
 import org.gradle.execution.commandline.CommandLineTaskParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -36,15 +39,41 @@ public class TaskNameResolvingBuildConfigurationAction implements BuildConfigura
     }
 
     public void configure(BuildExecutionContext context) {
-        GradleInternal gradle = context.getGradle();
+        final GradleInternal gradle = context.getGradle();
         TaskGraphExecuter executer = gradle.getTaskGraph();
 
-        List<TaskExecutionRequest> taskParameters = gradle.getStartParameter().getTaskRequests();
-        for (TaskExecutionRequest taskParameter : taskParameters) {
-            List<TaskSelector.TaskSelection> taskSelections = commandLineTaskParser.parseTasks(taskParameter);
+        // TODO(daniel): Switch-a-roo by passing the dry-run task instead.
+        if (gradle.getStartParameter().isDryRun()) {
+            List<TaskSelector.TaskSelection> taskSelections = commandLineTaskParser.parseTasks(new TaskExecutionRequest() {
+                @Override
+                public List<String> getArgs() {
+                    return Lists.newArrayList("dryRun");
+                }
+
+                @Nullable
+                @Override
+                public String getProjectPath() {
+                    return gradle.getRootProject().getPath();
+                }
+
+                @Nullable
+                @Override
+                public File getRootDir() {
+                    return gradle.getRootProject().getRootDir();
+                }
+            });
             for (TaskSelector.TaskSelection taskSelection : taskSelections) {
                 LOGGER.info("Selected primary task '{}' from project {}", taskSelection.getTaskName(), taskSelection.getProjectPath());
                 executer.addTasks(taskSelection.getTasks());
+            }
+        } else {
+            List<TaskExecutionRequest> taskParameters = gradle.getStartParameter().getTaskRequests();
+            for (TaskExecutionRequest taskParameter : taskParameters) {
+                List<TaskSelector.TaskSelection> taskSelections = commandLineTaskParser.parseTasks(taskParameter);
+                for (TaskSelector.TaskSelection taskSelection : taskSelections) {
+                    LOGGER.info("Selected primary task '{}' from project {}", taskSelection.getTaskName(), taskSelection.getProjectPath());
+                    executer.addTasks(taskSelection.getTasks());
+                }
             }
         }
 

@@ -23,12 +23,12 @@ import org.gradle.api.internal.GradleInternal;
  */
 public class DryRunBuildExecutionAction implements BuildExecutionAction {
     public void execute(BuildExecutionContext context) {
-        GradleInternal gradle = context.getGradle();
-        if (gradle.getStartParameter().isDryRun()) {
-            for (Task task : gradle.getTaskGraph().getAllTasks()) {
-                task.setEnabled(false);
-            }
-        }
+//        GradleInternal gradle = context.getGradle();
+//        if (gradle.getStartParameter().isDryRun()) {
+//            for (Task task : gradle.getTaskGraph().getAllTasks()) {
+//                task.setEnabled(false);
+//            }
+//        }
         context.proceed();
     }
 }
